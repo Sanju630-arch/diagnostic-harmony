@@ -79,7 +79,7 @@ const Index: React.FC = () => {
                       help you stay informed about your health status and take preventive measures.
                     </p>
                     <Link 
-                      to="/book-appointment"
+                      to="/booking-options"
                       className="inline-flex items-center justify-center px-6 py-3 bg-primary text-white font-medium rounded-lg shadow-md hover:bg-primary/90 transition-colors"
                     >
                       Book Your Appointment

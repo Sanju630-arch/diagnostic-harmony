@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
         { name: 'Diabetes Health Checkup', path: '/packages/diabetes-health-checkup' },
       ]
     },
-    { name: 'Book Appointment', path: '/book-appointment' },
+    { name: 'Book Appointment', path: '/booking-options' },
     { name: 'Contact Us', path: '/contact' },
   ];
 
