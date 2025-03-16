@@ -23,19 +23,19 @@ const AboutUs: React.FC = () => {
     {
       name: 'Rahul Sharma',
       role: 'Regular Patient',
-      content: 'DiagnoHub has completely transformed my healthcare experience. Their diagnostic services are accurate, and the staff is incredibly professional and caring.',
+      content: "DiagnoHub has completely transformed my healthcare experience. Their diagnostic services are accurate, and the staff is incredibly professional and caring.",
       avatar: '/placeholder.svg'
     },
     {
       name: 'Priya Patel',
       role: 'Annual Check-up Patient',
-      content: 'I've been coming to DiagnoHub for my annual health check-ups for 3 years now. The efficiency and accuracy of their services keep me coming back.',
+      content: "I've been coming to DiagnoHub for my annual health check-ups for 3 years now. The efficiency and accuracy of their services keep me coming back.",
       avatar: '/placeholder.svg'
     },
     {
       name: 'Amit Kumar',
       role: 'Corporate Client',
-      content: 'Our company partners with DiagnoHub for employee health check-ups. Their packages are comprehensive and the reporting is detailed and easy to understand.',
+      content: "Our company partners with DiagnoHub for employee health check-ups. Their packages are comprehensive and the reporting is detailed and easy to understand.",
       avatar: '/placeholder.svg'
     }
   ];
