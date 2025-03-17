@@ -39,7 +39,7 @@ export const packages: Package[] = [
     fastingHours: 8,
     tags: ["Routine", "Prevention", "Basic"],
     popular: true,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?q=80&w=1470&auto=format&fit=crop"
   },
   {
     id: "comprehensive-health-checkup",
@@ -61,7 +61,7 @@ export const packages: Package[] = [
     fastingHours: 12,
     tags: ["Comprehensive", "Advanced", "Seniors"],
     popular: true,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1579684385127-1ef15d508118?q=80&w=1480&auto=format&fit=crop"
   },
   {
     id: "cardiac-health-checkup",
@@ -83,7 +83,7 @@ export const packages: Package[] = [
     fastingHours: 8,
     tags: ["Cardiac", "Heart", "Specialized"],
     popular: false,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1470&auto=format&fit=crop"
   },
   {
     id: "diabetes-health-checkup",
@@ -105,7 +105,7 @@ export const packages: Package[] = [
     fastingHours: 12,
     tags: ["Diabetes", "Monitoring", "Specialized"],
     popular: true,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1543857778-c4a1a3e0b2eb?q=80&w=1470&auto=format&fit=crop"
   },
   {
     id: "women-health-checkup",
@@ -127,7 +127,7 @@ export const packages: Package[] = [
     fastingHours: 8,
     tags: ["Women", "Specialized", "Comprehensive"],
     popular: false,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1584516150454-e1ab362c3e1d?q=80&w=1374&auto=format&fit=crop"
   },
   {
     id: "men-health-checkup",
@@ -149,7 +149,7 @@ export const packages: Package[] = [
     fastingHours: 8,
     tags: ["Men", "Specialized", "Comprehensive"],
     popular: false,
-    image: "/placeholder.svg"
+    image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?q=80&w=1470&auto=format&fit=crop"
   }
 ];
 

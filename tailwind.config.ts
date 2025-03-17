@@ -66,16 +66,15 @@ export default {
       },
       fontFamily: {
         sans: [
-          "Montserrat",
+          "SF Pro Display",
           "-apple-system",
           "BlinkMacSystemFont",
-          "San Francisco",
           "Segoe UI",
           "Roboto",
           "Helvetica Neue",
           "sans-serif"
         ],
-        montserrat: ["Montserrat", "sans-serif"],
+        sf: ["SF Pro Display", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
@@ -114,6 +113,11 @@ export default {
         "blur-in": {
           "0%": { filter: "blur(5px)", opacity: "0" },
           "100%": { filter: "blur(0)", opacity: "1" }
+        },
+        "button-pop": {
+          "0%": { transform: "scale(1)" },
+          "50%": { transform: "scale(1.05)" },
+          "100%": { transform: "scale(1)" }
         }
       },
       animation: {
@@ -124,7 +128,8 @@ export default {
         "scale-in": "scale-in 0.6s ease-out",
         "float": "float 6s ease-in-out infinite",
         "pulse-soft": "pulse-soft 4s ease-in-out infinite",
-        "blur-in": "blur-in 0.6s ease-out"
+        "blur-in": "blur-in 0.6s ease-out",
+        "button-pop": "button-pop 0.3s ease-in-out"
       }
     }
   },
