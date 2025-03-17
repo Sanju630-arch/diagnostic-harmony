@@ -12,6 +12,9 @@ import AboutUs from "./pages/AboutUs";
 import Services from "./pages/Services";
 import Packages from "./pages/Packages";
 import PackageDetails from "./pages/PackageDetails";
+import Auth from "./pages/Auth";
+import VerifyOTP from "./pages/VerifyOTP";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +32,9 @@ const App = () => (
           <Route path="/services" element={<Services />} />
           <Route path="/packages" element={<Packages />} />
           <Route path="/packages/:id" element={<PackageDetails />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

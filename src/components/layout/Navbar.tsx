@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ChevronDown, LogIn } from 'lucide-react';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -46,7 +46,7 @@ const Navbar: React.FC = () => {
       ]
     },
     { name: 'Book Appointment', path: '/booking-options' },
-    { name: 'Contact Us', path: '/contact' },
+    { name: 'Login / Signup', path: '/auth' },
   ];
 
   return (
@@ -71,8 +71,9 @@ const Navbar: React.FC = () => {
                   to={link.path}
                   className={`text-sm font-medium px-1 py-2 transition-colors hover:text-primary ${
                     location.pathname === link.path ? 'text-primary border-b-2 border-primary' : 'text-gray-700'
-                  }`}
+                  } ${link.name === "Login / Signup" ? "flex items-center gap-1" : ""}`}
                 >
+                  {link.name === "Login / Signup" && <LogIn className="w-4 h-4" />}
                   {link.name}
                 </Link>
               ) : (
@@ -125,10 +126,11 @@ const Navbar: React.FC = () => {
               <Link
                 key={link.name}
                 to={link.path}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
                   location.pathname === link.path ? 'text-primary bg-sky-50' : 'text-gray-700 hover:bg-gray-100'
                 }`}
               >
+                {link.name === "Login / Signup" && <LogIn className="w-4 h-4" />}
                 {link.name}
               </Link>
             ) : (
