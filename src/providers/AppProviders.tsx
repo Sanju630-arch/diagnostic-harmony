@@ -1,7 +1,8 @@
 
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter as Router } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -9,9 +10,13 @@ interface AppProvidersProps {
 
 const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
-    <BrowserRouter>
-      <AuthProvider>{children}</AuthProvider>
-    </BrowserRouter>
+    <Router>
+      <AuthProvider>
+        <NavigationProvider>
+          {children}
+        </NavigationProvider>
+      </AuthProvider>
+    </Router>
   );
 };
 

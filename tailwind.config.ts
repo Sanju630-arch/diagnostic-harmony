@@ -66,6 +66,7 @@ export default {
       },
       fontFamily: {
         sans: [
+          "Montserrat",
           "-apple-system",
           "BlinkMacSystemFont",
           "San Francisco",
@@ -74,6 +75,7 @@ export default {
           "Helvetica Neue",
           "sans-serif"
         ],
+        montserrat: ["Montserrat", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

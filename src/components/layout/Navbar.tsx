@@ -1,13 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Menu, X, ChevronDown, LogIn } from 'lucide-react';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isPackagesOpen, setIsPackagesOpen] = useState(false);
   const location = useLocation();
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,28 +60,39 @@ const Navbar: React.FC = () => {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <Link to="/" className="flex-shrink-0 flex items-center">
-            <span className="text-xl font-medium text-primary">DiagnoHub</span>
-          </Link>
+          <a 
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('/');
+            }}
+            href="/"
+            className="flex-shrink-0 flex items-center cursor-pointer"
+          >
+            <span className="text-xl font-montserrat font-bold text-primary">DiagnoHub</span>
+          </a>
 
           {/* Desktop Nav */}
           <div className="hidden md:flex md:items-center md:space-x-8">
             {navLinks.map((link) => 
               !link.isDropdown ? (
-                <Link 
+                <a 
                   key={link.name}
-                  to={link.path}
-                  className={`text-sm font-medium px-1 py-2 transition-colors hover:text-primary ${
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigateTo(link.path);
+                  }}
+                  href={link.path}
+                  className={`text-sm font-montserrat font-bold px-1 py-2 transition-colors hover:text-primary ${
                     location.pathname === link.path ? 'text-primary border-b-2 border-primary' : 'text-gray-700'
-                  } ${link.name === "Login / Signup" ? "flex items-center gap-1" : ""}`}
+                  } ${link.name === "Login / Signup" ? "flex items-center gap-1" : ""} cursor-pointer`}
                 >
                   {link.name === "Login / Signup" && <LogIn className="w-4 h-4" />}
                   {link.name}
-                </Link>
+                </a>
               ) : (
                 <div key={link.name} className="relative group">
                   <button 
-                    className={`flex items-center text-sm font-medium px-1 py-2 transition-colors hover:text-primary ${
+                    className={`flex items-center text-sm font-montserrat font-bold px-1 py-2 transition-colors hover:text-primary ${
                       location.pathname.includes(link.path) ? 'text-primary border-b-2 border-primary' : 'text-gray-700'
                     }`}
                   >
@@ -88,13 +101,17 @@ const Navbar: React.FC = () => {
                   </button>
                   <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
                     {link.dropdownItems?.map((item) => (
-                      <Link
+                      <a
                         key={item.name}
-                        to={item.path}
-                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateTo(item.path);
+                        }}
+                        href={item.path}
+                        className="block px-4 py-2 text-sm font-montserrat text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
                         {item.name}
-                      </Link>
+                      </a>
                     ))}
                   </div>
                 </div>
@@ -123,21 +140,25 @@ const Navbar: React.FC = () => {
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white shadow-lg rounded-b-lg">
           {navLinks.map((link) => 
             !link.isDropdown ? (
-              <Link
+              <a
                 key={link.name}
-                to={link.path}
-                className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-medium ${
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateTo(link.path);
+                }}
+                href={link.path}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md text-base font-montserrat font-bold ${
                   location.pathname === link.path ? 'text-primary bg-sky-50' : 'text-gray-700 hover:bg-gray-100'
-                }`}
+                } cursor-pointer`}
               >
                 {link.name === "Login / Signup" && <LogIn className="w-4 h-4" />}
                 {link.name}
-              </Link>
+              </a>
             ) : (
               <div key={link.name}>
                 <button
                   onClick={togglePackages}
-                  className={`flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-medium ${
+                  className={`flex items-center justify-between w-full px-3 py-2 rounded-md text-base font-montserrat font-bold ${
                     location.pathname.includes(link.path) ? 'text-primary bg-sky-50' : 'text-gray-700 hover:bg-gray-100'
                   }`}
                 >
@@ -147,13 +168,17 @@ const Navbar: React.FC = () => {
                 {isPackagesOpen && (
                   <div className="pl-4 mt-1 space-y-1">
                     {link.dropdownItems?.map((item) => (
-                      <Link
+                      <a
                         key={item.name}
-                        to={item.path}
-                        className="block px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateTo(item.path);
+                        }}
+                        href={item.path}
+                        className="block px-3 py-2 rounded-md text-sm font-montserrat font-bold text-gray-700 hover:bg-gray-100 cursor-pointer"
                       >
                         {item.name}
-                      </Link>
+                      </a>
                     ))}
                   </div>
                 )}

@@ -1,18 +1,19 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigation } from '@/contexts/NavigationContext';
 
 const VerifyOTP = () => {
   const [otp, setOtp] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
   const { verifyOTP } = useAuth();
-  const navigate = useNavigate();
+  const { navigateTo } = useNavigation();
   const location = useLocation();
   const { toast } = useToast();
   
@@ -31,7 +32,7 @@ const VerifyOTP = () => {
     try {
       const success = await verifyOTP(otp);
       if (success) {
-        navigate('/dashboard');
+        navigateTo('/dashboard');
       }
     } catch (error) {
       toast({
@@ -52,13 +53,13 @@ const VerifyOTP = () => {
         className="w-full max-w-md p-8 bg-white rounded-2xl shadow-lg"
       >
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-slate-900 mb-2">Verify Your Identity</h1>
-          <p className="text-slate-600">We've sent a 6-digit verification code to your email or phone</p>
+          <h1 className="text-2xl font-montserrat font-bold text-slate-900 mb-2">Verify Your Identity</h1>
+          <p className="text-slate-600 font-montserrat">We've sent a 6-digit verification code to your email or phone</p>
         </div>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <label htmlFor="otp" className="text-sm font-medium text-slate-700">
+            <label htmlFor="otp" className="text-sm font-montserrat font-bold text-slate-700">
               Enter 6-digit code
             </label>
             <Input
@@ -69,10 +70,10 @@ const VerifyOTP = () => {
               pattern="[0-9]{6}"
               value={otp}
               onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-              className="w-full p-4 text-center text-xl tracking-widest"
+              className="w-full p-4 text-center text-xl tracking-widest font-montserrat"
               placeholder="• • • • • •"
             />
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-slate-500 mt-1 font-montserrat">
               Use code 123456 for testing
             </p>
           </div>
@@ -80,7 +81,7 @@ const VerifyOTP = () => {
           <Button
             type="submit"
             disabled={isVerifying}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-colors font-montserrat font-bold"
           >
             {isVerifying ? (
               <>
@@ -96,8 +97,8 @@ const VerifyOTP = () => {
             <Button
               type="button"
               variant="link"
-              onClick={() => navigate('/auth')}
-              className="text-blue-600 hover:text-blue-800 underline text-sm"
+              onClick={() => navigateTo('/auth')}
+              className="text-blue-600 hover:text-blue-800 underline text-sm font-montserrat"
             >
               Back to Login
             </Button>
