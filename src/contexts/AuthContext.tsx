@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -9,10 +8,13 @@ import {
   signInWithPhoneNumber,
   signOut,
   sendSignInLinkToEmail,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
   isSignInWithEmailLink,
-  signInWithEmailLink
+  signInWithEmailLink,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import zxcvbn from 'zxcvbn';
 
 interface User {
   id: string;
@@ -24,10 +26,12 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (email: string, phone: string, method: 'email' | 'phone') => Promise<void>;
+  login: (email: string, phone: string, method: 'email' | 'phone', password?: string) => Promise<void>;
   logout: () => void;
   verifyOTP: (otp: string) => Promise<boolean>;
   verificationId: string;
+  signup: (email: string, password: string) => Promise<void>;
+  checkPasswordStrength: (password: string) => number;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -42,7 +46,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for existing user session
     const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
       if (firebaseUser) {
         const user: User = {
@@ -59,10 +62,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     });
 
-    // Handle email sign-in if coming from an email link
     const url = window.location.href;
     if (isSignInWithEmailLink(auth, url)) {
-      // Get the email from localStorage (saved when sending the link)
       const email = localStorage.getItem('emailForSignIn');
       if (email) {
         setIsLoading(true);
@@ -87,46 +88,68 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => unsubscribe();
   }, [navigate, toast]);
 
-  // Initialize reCAPTCHA verifier
-  const setupRecaptcha = (phoneNumber: string) => {
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: () => {
-        // reCAPTCHA solved, allow signInWithPhoneNumber.
-      }
-    });
-    
-    return signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+  const checkPasswordStrength = (password: string) => {
+    const result = zxcvbn(password);
+    return result.score;
   };
 
-  const login = async (email: string, phone: string, method: 'email' | 'phone') => {
-    setAuthMethod(method);
+  const signup = async (email: string, password: string) => {
+    try {
+      setIsLoading(true);
+      const result = await createUserWithEmailAndPassword(auth, email, password);
+      const newUser: User = {
+        id: result.user.uid,
+        email: result.user.email || undefined,
+      };
+      setUser(newUser);
+      localStorage.setItem('diagnohub_user', JSON.stringify(newUser));
+      toast({
+        title: "Account Created",
+        description: "Your account has been successfully created.",
+      });
+      navigate('/dashboard');
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Signup Failed",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const login = async (email: string, phone: string, method: 'email' | 'phone', password?: string) => {
     setIsLoading(true);
+    setAuthMethod(method);
     
     try {
       if (method === 'email') {
         setEmailOrPhone(email);
-        
-        // For demonstration, we're using email link authentication
-        // In production, you might want to use Firebase Custom Auth with email OTP
-        const actionCodeSettings = {
-          url: window.location.origin + '/verify-otp',
-          handleCodeInApp: true,
-        };
-        
-        await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-        localStorage.setItem('emailForSignIn', email);
-        
-        toast({
-          title: "Email Sent",
-          description: "Check your email for a sign-in link. For demo, use code 123456.",
-        });
-        
-        navigate('/verify-otp');
+        if (password) {
+          const result = await signInWithEmailAndPassword(auth, email, password);
+          const user: User = {
+            id: result.user.uid,
+            email: result.user.email || undefined,
+          };
+          setUser(user);
+          localStorage.setItem('diagnohub_user', JSON.stringify(user));
+          navigate('/dashboard');
+        } else {
+          const actionCodeSettings = {
+            url: window.location.origin + '/verify-otp',
+            handleCodeInApp: true,
+          };
+          await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+          localStorage.setItem('emailForSignIn', email);
+          toast({
+            title: "Email Sent",
+            description: "Check your email for a sign-in link. For demo, use code 123456.",
+          });
+          navigate('/verify-otp');
+        }
       } else {
         setEmailOrPhone(phone);
-        
-        // Initialize phone authentication
         const formattedPhoneNumber = phone.startsWith('+') ? phone : `+${phone}`;
         const confirmationResult = await setupRecaptcha(formattedPhoneNumber);
         setVerificationId(confirmationResult.verificationId);
@@ -149,13 +172,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const setupRecaptcha = (phoneNumber: string) => {
+    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      size: 'invisible',
+      callback: () => {
+        signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      }
+    });
+    
+    return signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+  };
+
   const verifyOTP = async (otp: string): Promise<boolean> => {
     setIsLoading(true);
     
     try {
-      // For demonstration purposes, also accept 123456 as a valid OTP
       if (otp === '123456') {
-        // Create a demo user for testing
         const demoUser: User = {
           id: Math.random().toString(36).substring(2, 15),
           ...(authMethod === 'email' && { email: emailOrPhone }),
@@ -173,7 +205,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
-      // Real Firebase verification
       if (authMethod === 'phone' && verificationId) {
         const credential = PhoneAuthProvider.credential(verificationId, otp);
         await signInWithCredential(auth, credential);
@@ -186,10 +217,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
-      // For email, we're currently using email link which doesn't need OTP
-      // This is just a fallback check
       if (authMethod === 'email') {
-        // In reality, you'd implement a custom email OTP solution here
         throw new Error("Invalid verification method");
       }
       
@@ -234,7 +262,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       login,
       logout,
       verifyOTP,
-      verificationId
+      verificationId,
+      signup,
+      checkPasswordStrength
     }}>
       {children}
     </AuthContext.Provider>

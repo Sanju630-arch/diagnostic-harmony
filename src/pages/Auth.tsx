@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Heart, Stethoscope, User, Lock, ArrowRight } from 'lucide-react';
+import { Mail, Phone, Heart, Stethoscope, User, Lock, ArrowRight, KeyRound, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
@@ -16,6 +16,8 @@ import AnimatedBackground from '@/components/ui/AnimatedBackground';
 
 const emailSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters" })
+    .regex(/[!@#$%^&*(),.?":{}|<>]/, { message: "Password must contain at least one special character" }),
 });
 
 const phoneSchema = z.object({
@@ -24,11 +26,13 @@ const phoneSchema = z.object({
 
 const Auth: React.FC = () => {
   const [authMethod, setAuthMethod] = useState<'email' | 'phone'>('email');
-  const { login } = useAuth();
+  const [isSignup, setIsSignup] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(0);
+  const { login, signup, checkPasswordStrength } = useAuth();
   
   const emailForm = useForm<z.infer<typeof emailSchema>>({
     resolver: zodResolver(emailSchema),
-    defaultValues: { email: '' },
+    defaultValues: { email: '', password: '' },
   });
   
   const phoneForm = useForm<z.infer<typeof phoneSchema>>({
@@ -36,12 +40,21 @@ const Auth: React.FC = () => {
     defaultValues: { phone: '' },
   });
   
-  const onEmailSubmit = (data: z.infer<typeof emailSchema>) => {
-    login(data.email, '', 'email');
+  const onEmailSubmit = async (data: z.infer<typeof emailSchema>) => {
+    if (isSignup) {
+      await signup(data.email, data.password);
+    } else {
+      await login(data.email, '', 'email', data.password);
+    }
   };
   
   const onPhoneSubmit = (data: z.infer<typeof phoneSchema>) => {
     login('', data.phone, 'phone');
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const strength = checkPasswordStrength(e.target.value);
+    setPasswordStrength(strength * 25); // Convert 0-4 score to 0-100 percentage
   };
   
   const fadeInUp = {
@@ -68,7 +81,6 @@ const Auth: React.FC = () => {
         <section className="py-12 md:py-20">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
-              {/* Left Column - Illustrations and Text */}
               <motion.div 
                 className="lg:col-span-2 flex flex-col justify-center"
                 initial="hidden"
@@ -80,10 +92,10 @@ const Auth: React.FC = () => {
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                       <Heart className="h-8 w-8 text-primary" />
                     </div>
-                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                      Welcome to DiagnoHub
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
+                      Welcome to MawaDiagnosticCenter
                     </h1>
-                    <p className="text-lg text-gray-600 mb-6">
+                    <p className="text-lg text-gray-600 dark:text-gray-300 mb-6">
                       Your personal health dashboard is just a login away. Access your reports, schedule appointments, and track your health journey.
                     </p>
                   </div>
@@ -133,17 +145,35 @@ const Auth: React.FC = () => {
                 </div>
               </motion.div>
               
-              {/* Right Column - Auth Form */}
               <motion.div 
                 className="lg:col-span-3"
                 initial="hidden"
                 animate="visible"
                 variants={fadeInUp}
               >
-                <div className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 md:p-10 border border-gray-100">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                    Login or Sign Up
-                  </h2>
+                <div className="glass dark:bg-gray-800/80 rounded-2xl shadow-xl p-8 md:p-10">
+                  <div className="flex justify-between items-center mb-6">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                      {isSignup ? "Create Account" : "Login"}
+                    </h2>
+                    <Button
+                      variant="ghost"
+                      onClick={() => setIsSignup(!isSignup)}
+                      className="flex items-center gap-2"
+                    >
+                      {isSignup ? (
+                        <>
+                          <KeyRound className="w-4 h-4" />
+                          <span>Login Instead</span>
+                        </>
+                      ) : (
+                        <>
+                          <UserPlus className="w-4 h-4" />
+                          <span>Sign Up</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                   
                   <Tabs defaultValue="email" onValueChange={(value) => setAuthMethod(value as 'email' | 'phone')}>
                     <TabsList className="grid w-full grid-cols-2 mb-8">
@@ -181,19 +211,54 @@ const Auth: React.FC = () => {
                             )}
                           />
                           
+                          {(isSignup || !isSignup) && (
+                            <FormField
+                              control={emailForm.control}
+                              name="password"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Password</FormLabel>
+                                  <FormControl>
+                                    <div className="relative">
+                                      <Lock className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                                      <Input 
+                                        type="password"
+                                        placeholder="Enter your password" 
+                                        className="pl-10" 
+                                        {...field}
+                                        onChange={(e) => {
+                                          field.onChange(e);
+                                          handlePasswordChange(e);
+                                        }}
+                                      />
+                                    </div>
+                                  </FormControl>
+                                  {isSignup && (
+                                    <div className="mt-2">
+                                      <Progress value={passwordStrength} className="h-2" />
+                                      <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                                        Password strength: {passwordStrength === 0 ? "Very Weak" : 
+                                          passwordStrength <= 25 ? "Weak" :
+                                          passwordStrength <= 50 ? "Fair" :
+                                          passwordStrength <= 75 ? "Strong" : "Very Strong"}
+                                      </p>
+                                    </div>
+                                  )}
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
+                          
                           <Button 
                             type="submit" 
                             className="w-full flex items-center justify-center gap-2"
                           >
-                            Continue with Email 
+                            {isSignup ? "Sign Up" : "Login"} 
                             <ArrowRight className="h-4 w-4" />
                           </Button>
                         </form>
                       </Form>
-                      
-                      <div className="mt-6 text-center text-sm text-gray-500">
-                        <p>We'll send a verification code to this email address</p>
-                      </div>
                     </TabsContent>
                     
                     <TabsContent value="phone">
