@@ -5,6 +5,8 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 interface NavigationContextType {
   navigateTo: (path: string) => void;
+  isLoading: boolean;
+  setLoading: (loading: boolean) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -35,8 +37,12 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     }, 800); // Loading time in milliseconds
   };
   
+  const setLoading = (loading: boolean) => {
+    setIsLoading(loading);
+  };
+  
   return (
-    <NavigationContext.Provider value={{ navigateTo }}>
+    <NavigationContext.Provider value={{ navigateTo, isLoading, setLoading }}>
       {isLoading && <LoadingSpinner />}
       {children}
     </NavigationContext.Provider>
