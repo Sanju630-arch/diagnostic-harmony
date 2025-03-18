@@ -79,7 +79,8 @@ export default {
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)"
+        sm: "calc(var(--radius) - 4px)",
+        xl: "1rem"
       },
       keyframes: {
         "accordion-down": {
@@ -130,6 +131,10 @@ export default {
         "pulse-soft": "pulse-soft 4s ease-in-out infinite",
         "blur-in": "blur-in 0.6s ease-out",
         "button-pop": "button-pop 0.3s ease-in-out"
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+        'card-gradient': 'linear-gradient(to right, #e0f2fe, #f0f9ff)'
       }
     }
   },

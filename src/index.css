@@ -78,7 +78,7 @@
   }
   
   .glass {
-    @apply bg-white/80 backdrop-blur-xl border border-white/20 shadow-md;
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-800/50 shadow-md;
   }
   
   .card-hover {
@@ -87,6 +87,10 @@
   
   .text-balance {
     text-wrap: balance;
+  }
+
+  img {
+    @apply w-full h-auto aspect-square object-cover rounded-lg;
   }
 }
 
@@ -117,4 +121,17 @@
 .geometric-bg {
   background-image: radial-gradient(rgba(196, 236, 255, 0.2) 2px, transparent 2px);
   background-size: 30px 30px;
+}
+
+/* Button Gradient Effects */
+.gradient-primary {
+  @apply bg-gradient-to-r from-blue-500 to-teal-400 hover:from-blue-600 hover:to-teal-500;
+}
+
+.gradient-secondary {
+  @apply bg-gradient-to-r from-purple-500 to-pink-400 hover:from-purple-600 hover:to-pink-500;
+}
+
+.gradient-accent {
+  @apply bg-gradient-to-r from-orange-400 to-amber-300 hover:from-orange-500 hover:to-amber-400;
 }
