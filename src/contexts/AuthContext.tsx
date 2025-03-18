@@ -1,19 +1,8 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { 
-  PhoneAuthProvider, 
-  RecaptchaVerifier, 
-  signInWithCredential, 
-  signInWithPhoneNumber,
-  signOut,
-  sendSignInLinkToEmail,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  isSignInWithEmailLink,
-  signInWithEmailLink,
-} from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { supabase } from '@/integrations/supabase/client';
 import zxcvbn from 'zxcvbn';
 
 interface User {
@@ -46,12 +35,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((firebaseUser) => {
-      if (firebaseUser) {
+    // Check for existing session on load
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      
+      if (data.session) {
+        const supabaseUser = data.session.user;
         const user: User = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || undefined,
-          phone: firebaseUser.phoneNumber || undefined,
+          id: supabaseUser.id,
+          email: supabaseUser.email || undefined,
+          phone: supabaseUser.phone || undefined,
+        };
+        setUser(user);
+        localStorage.setItem('diagnohub_user', JSON.stringify(user));
+      } else {
+        setUser(null);
+        localStorage.removeItem('diagnohub_user');
+      }
+      setIsLoading(false);
+    };
+
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (session) {
+        const supabaseUser = session.user;
+        const user: User = {
+          id: supabaseUser.id,
+          email: supabaseUser.email || undefined,
+          phone: supabaseUser.phone || undefined,
         };
         setUser(user);
         localStorage.setItem('diagnohub_user', JSON.stringify(user));
@@ -62,31 +75,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsLoading(false);
     });
 
-    const url = window.location.href;
-    if (isSignInWithEmailLink(auth, url)) {
-      const email = localStorage.getItem('emailForSignIn');
-      if (email) {
-        setIsLoading(true);
-        signInWithEmailLink(auth, email, url)
-          .then(() => {
-            localStorage.removeItem('emailForSignIn');
-            navigate('/dashboard');
-          })
-          .catch((error) => {
-            toast({
-              variant: "destructive",
-              title: "Authentication Error",
-              description: error.message,
-            });
-          })
-          .finally(() => {
-            setIsLoading(false);
-          });
-      }
-    }
-
-    return () => unsubscribe();
-  }, [navigate, toast]);
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const checkPasswordStrength = (password: string) => {
     const result = zxcvbn(password);
@@ -96,23 +88,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (email: string, password: string) => {
     try {
       setIsLoading(true);
-      const result = await createUserWithEmailAndPassword(auth, email, password);
-      const newUser: User = {
-        id: result.user.uid,
-        email: result.user.email || undefined,
-      };
-      setUser(newUser);
-      localStorage.setItem('diagnohub_user', JSON.stringify(newUser));
-      toast({
-        title: "Account Created",
-        description: "Your account has been successfully created.",
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password
       });
-      navigate('/dashboard');
+      
+      if (error) throw error;
+      
+      if (data.user) {
+        const newUser: User = {
+          id: data.user.id,
+          email: data.user.email || undefined,
+        };
+        setUser(newUser);
+        localStorage.setItem('diagnohub_user', JSON.stringify(newUser));
+        
+        toast({
+          title: "Account Created",
+          description: "Your account has been successfully created. Please check your email for verification.",
+        });
+        
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Signup Failed",
-        description: error.message,
+        description: error.message || "Failed to create account",
       });
     } finally {
       setIsLoading(false);
@@ -126,33 +128,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       if (method === 'email') {
         setEmailOrPhone(email);
+        
         if (password) {
-          const result = await signInWithEmailAndPassword(auth, email, password);
-          const user: User = {
-            id: result.user.uid,
-            email: result.user.email || undefined,
-          };
-          setUser(user);
-          localStorage.setItem('diagnohub_user', JSON.stringify(user));
-          navigate('/dashboard');
+          // Sign in with email and password
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+          });
+          
+          if (error) throw error;
+          
+          if (data.user) {
+            navigate('/dashboard');
+          }
         } else {
-          const actionCodeSettings = {
-            url: window.location.origin + '/verify-otp',
-            handleCodeInApp: true,
-          };
-          await sendSignInLinkToEmail(auth, email, actionCodeSettings);
-          localStorage.setItem('emailForSignIn', email);
+          // Send magic link
+          const { error } = await supabase.auth.signInWithOtp({
+            email,
+            options: {
+              emailRedirectTo: window.location.origin + '/verify-otp',
+            }
+          });
+          
+          if (error) throw error;
+          
           toast({
             title: "Email Sent",
             description: "Check your email for a sign-in link. For demo, use code 123456.",
           });
+          
           navigate('/verify-otp');
         }
       } else {
+        // Sign in with phone
         setEmailOrPhone(phone);
         const formattedPhoneNumber = phone.startsWith('+') ? phone : `+${phone}`;
-        const confirmationResult = await setupRecaptcha(formattedPhoneNumber);
-        setVerificationId(confirmationResult.verificationId);
+        
+        const { error } = await supabase.auth.signInWithOtp({
+          phone: formattedPhoneNumber,
+        });
+        
+        if (error) throw error;
         
         toast({
           title: "OTP Sent",
@@ -165,22 +181,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast({
         variant: "destructive",
         title: "Authentication Error",
-        description: error.message,
+        description: error.message || "An error occurred during authentication",
       });
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const setupRecaptcha = (phoneNumber: string) => {
-    const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
-      size: 'invisible',
-      callback: () => {
-        signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
-      }
-    });
-    
-    return signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
   };
 
   const verifyOTP = async (otp: string): Promise<boolean> => {
@@ -188,6 +193,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     
     try {
       if (otp === '123456') {
+        // Demo verification for testing
         const demoUser: User = {
           id: Math.random().toString(36).substring(2, 15),
           ...(authMethod === 'email' && { email: emailOrPhone }),
@@ -205,9 +211,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
-      if (authMethod === 'phone' && verificationId) {
-        const credential = PhoneAuthProvider.credential(verificationId, otp);
-        await signInWithCredential(auth, credential);
+      if (authMethod === 'phone') {
+        // Verify phone OTP
+        const { data, error } = await supabase.auth.verifyOtp({
+          phone: emailOrPhone,
+          token: otp,
+          type: 'sms'
+        });
+        
+        if (error) throw error;
         
         toast({
           title: "Verification Successful",
@@ -217,11 +229,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return true;
       }
       
-      if (authMethod === 'email') {
-        throw new Error("Invalid verification method");
-      }
-      
-      throw new Error("Invalid verification code");
+      return false;
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -237,7 +245,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      await signOut(auth);
+      await supabase.auth.signOut();
       setUser(null);
       localStorage.removeItem('diagnohub_user');
       toast({
@@ -249,7 +257,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast({
         variant: "destructive",
         title: "Logout Failed",
-        description: error.message,
+        description: error.message || "Failed to log out",
       });
     }
   };

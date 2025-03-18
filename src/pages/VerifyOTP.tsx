@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -20,15 +20,6 @@ const VerifyOTP = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { setLoading } = useNavigation();
-
-  useEffect(() => {
-    // Create a hidden reCAPTCHA container
-    if (!document.getElementById('recaptcha-container')) {
-      const recaptchaContainer = document.createElement('div');
-      recaptchaContainer.id = 'recaptcha-container';
-      document.body.appendChild(recaptchaContainer);
-    }
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -114,16 +105,16 @@ const VerifyOTP = () => {
                 initial="hidden"
                 animate="visible"
                 variants={fadeInUp}
-                className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 md:p-10 border border-gray-100"
+                className="bg-white/80 backdrop-blur-lg rounded-2xl shadow-xl p-8 md:p-10 border border-gray-100 dark:bg-gray-800/80 dark:border-gray-700"
               >
                 <div className="text-center mb-8">
                   <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10 mb-4">
                     <ShieldCheck className="h-8 w-8 text-primary" />
                   </div>
-                  <h1 className="text-2xl font-bold text-gray-900 mb-2">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                     Verify Your Identity
                   </h1>
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     We've sent a 6-digit verification code to you
                   </p>
                 </div>
@@ -138,8 +129,8 @@ const VerifyOTP = () => {
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-100 mb-4">
                       <ShieldCheck className="h-10 w-10 text-green-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Verification Successful</h2>
-                    <p className="text-gray-600 mb-6">You'll be redirected to your dashboard shortly</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Verification Successful</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">You'll be redirected to your dashboard shortly</p>
                   </motion.div>
                 ) : verificationResult === 'error' ? (
                   <motion.div 
@@ -151,8 +142,8 @@ const VerifyOTP = () => {
                     <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-red-100 mb-4">
                       <AlertCircle className="h-10 w-10 text-red-600" />
                     </div>
-                    <h2 className="text-xl font-bold text-gray-900 mb-2">Verification Failed</h2>
-                    <p className="text-gray-600 mb-6">The code you entered is incorrect. Please try again.</p>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Verification Failed</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-6">The code you entered is incorrect. Please try again.</p>
                     <Button
                       variant="outline"
                       onClick={() => setVerificationResult(null)}
@@ -164,7 +155,7 @@ const VerifyOTP = () => {
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div className="space-y-2">
-                      <label className="block text-sm font-medium text-gray-700">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                         Enter 6-digit code
                       </label>
                       <div className="mx-auto">
@@ -183,7 +174,7 @@ const VerifyOTP = () => {
                           </InputOTPGroup>
                         </InputOTP>
                       </div>
-                      <p className="text-xs text-center text-gray-500 mt-2">
+                      <p className="text-xs text-center text-gray-500 dark:text-gray-400 mt-2">
                         Use code 123456 for testing
                       </p>
                     </div>
@@ -231,9 +222,6 @@ const VerifyOTP = () => {
       </main>
       
       <Footer />
-      
-      {/* Hidden container for reCAPTCHA */}
-      <div id="recaptcha-container"></div>
     </div>
   );
 };
