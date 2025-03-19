@@ -64,7 +64,7 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-100;
+    @apply text-white font-semibold;
   }
   
   p, span, div {
@@ -82,16 +82,16 @@
   input:not([type="radio"]):not([type="checkbox"]),
   select,
   textarea {
-    @apply bg-gray-800 border-gray-700 text-gray-100;
+    @apply bg-gray-800 border border-gray-700 text-white;
   }
   
   .card, 
   .card-body {
-    @apply bg-gray-800 text-gray-100 border-gray-700;
+    @apply bg-gray-800 text-white border-gray-700;
   }
   
   button:not(.gradient-primary):not(.gradient-secondary):not(.gradient-accent) {
-    @apply bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700;
+    @apply bg-gray-800 text-white border-gray-700 hover:bg-gray-700;
   }
 }
 
@@ -141,4 +141,13 @@
 /* Dark Mode Specific Styles */
 .glass {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced visibility for UI elements */
+.btn, .button, button {
+  @apply text-white font-medium;
+}
+
+.card {
+  @apply bg-gray-800 text-white border border-gray-700;
 }

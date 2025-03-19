@@ -36,10 +36,33 @@
 
 .card {
   padding: 2em;
-  background-color: #222;
-  color: #eee;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  border: 1px solid #333;
+  border-radius: 8px;
 }
 
 .read-the-docs {
   color: #ccc;
+}
+
+/* Dark theme specific styles */
+a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+button {
+  background-color: #3b82f6;
+  color: white;
+  font-weight: 500;
+}
+
+button:hover {
+  background-color: #2563eb;
 }
