@@ -5,8 +5,10 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 
 export function ThemeToggle() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check if user has a theme preference in local storage
     const storedTheme = localStorage.getItem("theme");
     
@@ -21,6 +23,8 @@ export function ThemeToggle() {
   }, []);
 
   useEffect(() => {
+    if (!mounted) return;
+    
     // Apply theme to document
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
@@ -30,11 +34,15 @@ export function ThemeToggle() {
     
     // Store the preference
     localStorage.setItem("theme", theme);
-  }, [theme]);
+  }, [theme, mounted]);
 
   const toggleTheme = () => {
     setTheme(theme === "light" ? "dark" : "light");
   };
+
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <Tooltip>
