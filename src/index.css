@@ -5,38 +5,6 @@
  
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222.2 84% 4.9%;
-
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 196 80% 45%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
-
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 196 80% 45%;
-
-    --radius: 0.75rem;
-  }
- 
-  .dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
  
@@ -64,6 +32,8 @@
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 196 80% 45%;
+    
+    --radius: 0.75rem;
   }
 }
 
@@ -72,13 +42,13 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply bg-gray-900 text-gray-100 antialiased;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   
   .glass {
-    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-white/20 dark:border-gray-800/50 shadow-md;
+    @apply bg-gray-900/80 backdrop-blur-xl border border-gray-800/50 shadow-md;
   }
   
   .card-hover {
@@ -94,11 +64,11 @@
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply text-gray-900 dark:text-gray-100;
+    @apply text-gray-100;
   }
   
   p, span, div {
-    @apply text-gray-800 dark:text-gray-200;
+    @apply text-gray-200;
   }
   
   a {
@@ -106,7 +76,22 @@
   }
   
   label {
-    @apply text-gray-700 dark:text-gray-300;
+    @apply text-gray-300;
+  }
+  
+  input:not([type="radio"]):not([type="checkbox"]),
+  select,
+  textarea {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+  
+  .card, 
+  .card-body {
+    @apply bg-gray-800 text-gray-100 border-gray-700;
+  }
+  
+  button:not(.gradient-primary):not(.gradient-secondary):not(.gradient-accent) {
+    @apply bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700;
   }
 }
 
@@ -135,8 +120,8 @@
 
 /* Geometric Patterns */
 .geometric-bg {
-  @apply bg-gray-50 dark:bg-gray-900;
-  background-image: radial-gradient(rgba(196, 236, 255, 0.2) 2px, transparent 2px);
+  @apply bg-gray-900;
+  background-image: radial-gradient(rgba(196, 236, 255, 0.05) 2px, transparent 2px);
   background-size: 30px 30px;
 }
 
@@ -154,28 +139,6 @@
 }
 
 /* Dark Mode Specific Styles */
-.dark .geometric-bg {
-  background-image: radial-gradient(rgba(196, 236, 255, 0.05) 2px, transparent 2px);
-}
-
-.dark .glass {
+.glass {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
-}
-
-/* Form Elements Dark Mode */
-.dark input:not([type="radio"]):not([type="checkbox"]),
-.dark select,
-.dark textarea {
-  @apply bg-gray-800 border-gray-700 text-gray-100;
-}
-
-/* Card Elements Dark Mode */
-.dark .card, 
-.dark .card-body {
-  @apply bg-gray-800 text-gray-100 border-gray-700;
-}
-
-/* Button Dark Mode */
-.dark button:not(.gradient-primary):not(.gradient-secondary):not(.gradient-accent) {
-  @apply bg-gray-800 text-gray-100 border-gray-700 hover:bg-gray-700;
 }
